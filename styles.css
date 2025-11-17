@@ -658,7 +658,6 @@ keyboard-hint kbd {
     background: rgba(99, 102, 241, 0.5);
     color: white;
     border-color: rgba(99, 102, 241, 0.6);
-    border-color: var(--primary-color);
     backdrop-filter: blur(20px);
 }
 
