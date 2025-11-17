@@ -176,15 +176,21 @@ keyboard-hint kbd {
 
 /* Settings Panel */
 .settings-panel {
-    background: var(--card-bg);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(40px) saturate(180%);
     display: none;
     animation: slideDown 0.3s ease;
-    border: 2px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+}
+
+[data-theme="dark"] .settings-panel {
+    background: rgba(30, 27, 75, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .settings-panel.show {
@@ -277,15 +283,21 @@ keyboard-hint kbd {
 
 /* Statistics Panel */
 .stats-panel {
-    background: var(--card-bg);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(40px) saturate(180%);
     display: none;
     animation: slideDown 0.3s ease;
-    border: 2px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+}
+
+[data-theme="dark"] .stats-panel {
+    background: rgba(30, 27, 75, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .stats-panel.show {
@@ -419,11 +431,11 @@ keyboard-hint kbd {
     align-items: center;
     margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 [data-theme="dark"] .section-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .section-header h2 {
@@ -433,6 +445,8 @@ keyboard-hint kbd {
     display: flex;
     align-items: center;
     gap: 6px;
+    margin: 0;
+    font-weight: 600;
 }
 
 .section-icon {
@@ -440,22 +454,26 @@ keyboard-hint kbd {
 }
 
 .timer-status {
-    font-size: 0.9rem;
-    padding: 6px 12px;
-    background: var(--primary-color);
+    font-size: 0.85rem;
+    padding: 5px 10px;
+    background: rgba(99, 102, 241, 0.4);
     color: white;
-    border-radius: 20px;
+    border-radius: 15px;
     font-weight: 600;
     animation: pulseStatus 2s ease-in-out infinite;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
 @keyframes pulseStatus {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    50% { opacity: 0.8; }
 }
 
 .timer-status.running {
-    background: var(--focus-color);
+    background: rgba(16, 185, 129, 0.5);
+    border-color: rgba(16, 185, 129, 0.6);
 }
 
 .timer-display {
@@ -535,17 +553,19 @@ keyboard-hint kbd {
 
 .btn {
     padding: 8px 14px;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 5px;
     font-family: 'Inter', sans-serif;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
 .btn-icon {
@@ -553,23 +573,27 @@ keyboard-hint kbd {
 }
 
 .btn-primary {
-    background: var(--primary-color);
+    background: rgba(99, 102, 241, 0.4);
     color: white;
+    border-color: rgba(99, 102, 241, 0.5);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: var(--primary-dark);
+    background: rgba(99, 102, 241, 0.6);
+    border-color: rgba(99, 102, 241, 0.7);
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
 .btn-secondary {
-    background: var(--border-color);
+    background: rgba(255, 255, 255, 0.2);
     color: var(--text-dark);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: #d1d5db;
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
     transform: translateY(-2px);
 }
 
@@ -834,9 +858,9 @@ keyboard-hint kbd {
 }
 
 .todo-delete {
-    background: #ef4444;
+    background: rgba(239, 68, 68, 0.5);
     color: white;
-    border: none;
+    border: 1px solid rgba(239, 68, 68, 0.6);
     border-radius: 8px;
     padding: 8px 14px;
     cursor: pointer;
@@ -844,10 +868,13 @@ keyboard-hint kbd {
     transition: var(--transition);
     font-weight: 600;
     flex-shrink: 0;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
 .todo-delete:hover {
-    background: #dc2626;
+    background: rgba(220, 38, 38, 0.6);
+    border-color: rgba(220, 38, 38, 0.7);
     transform: scale(1.1);
 }
 
