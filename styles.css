@@ -537,12 +537,19 @@ keyboard-hint kbd {
 
 .timer-label {
     position: absolute;
-    bottom: 8px;
+    bottom: -18px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 0.7rem;
-    color: var(--text-light);
-    font-weight: 500;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .timer-label {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .timer-controls {
