@@ -185,6 +185,74 @@ function toggleTheme() {
     localStorage.setItem('dhruvi-theme', CONFIG.theme);
 }
 
+// ==================== BACKGROUND MANAGEMENT ====================
+function initializeBackground() {
+    applyBackground(CONFIG.background);
+    renderBackgroundOptions();
+}
+
+function applyBackground(backgroundId) {
+    const background = BACKGROUND_OPTIONS.find(bg => bg.id === backgroundId) || BACKGROUND_OPTIONS[0];
+    const body = document.body;
+    
+    if (background.type === 'gradient') {
+        body.style.background = background.value;
+        body.style.backgroundImage = '';
+        body.classList.remove('custom-bg');
+        document.documentElement.style.setProperty('--custom-bg-image', 'none');
+    } else {
+        body.style.background = '';
+        body.style.backgroundImage = `url("${background.value}")`;
+        body.classList.add('custom-bg');
+        document.documentElement.style.setProperty('--custom-bg-image', `url("${background.value}")`);
+    }
+    
+    CONFIG.background = backgroundId;
+    localStorage.setItem('dhruvi-background', backgroundId);
+}
+
+function renderBackgroundOptions() {
+    const grid = document.getElementById('background-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    
+    BACKGROUND_OPTIONS.forEach(bg => {
+        const option = document.createElement('div');
+        option.className = `background-option ${bg.id === CONFIG.background ? 'active' : ''}`;
+        option.dataset.backgroundId = bg.id;
+        
+        if (bg.type === 'gradient') {
+            option.style.background = bg.preview;
+        } else {
+            const img = document.createElement('img');
+            img.src = bg.preview;
+            img.alt = bg.name;
+            img.loading = 'lazy';
+            option.appendChild(img);
+        }
+        
+        const label = document.createElement('div');
+        label.className = 'background-label';
+        label.textContent = bg.name;
+        option.appendChild(label);
+        
+        option.addEventListener('click', () => {
+            // Update active state
+            document.querySelectorAll('.background-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            option.classList.add('active');
+            
+            // Apply background
+            applyBackground(bg.id);
+            showToast(`🎨 Background changed to "${bg.name}"!`);
+        });
+        
+        grid.appendChild(option);
+    });
+}
+
 // ==================== SOUND MANAGEMENT ====================
 function toggleSound() {
     CONFIG.soundEnabled = !CONFIG.soundEnabled;
