@@ -146,6 +146,10 @@ let currentFilter = 'all';
 document.addEventListener('DOMContentLoaded', () => {
     // Setup collapsible sections
     setupCollapsibleSections();
+    
+    // Collapse all sections by default on page load
+    collapseAllSections();
+    
     initializeTheme();
     initializeBackground();
     initializeTimers();
