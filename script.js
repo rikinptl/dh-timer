@@ -2,8 +2,76 @@
 const CONFIG = {
     soundEnabled: JSON.parse(localStorage.getItem('dhruvi-sound') ?? 'true'),
     theme: localStorage.getItem('dhruvi-theme') || 'light',
-    particlesEnabled: true
+    particlesEnabled: true,
+    background: localStorage.getItem('dhruvi-background') || 'default'
 };
+
+// ==================== BACKGROUND OPTIONS ====================
+const BACKGROUND_OPTIONS = [
+    {
+        id: 'default',
+        name: 'Default Gradient',
+        type: 'gradient',
+        value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        preview: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    },
+    {
+        id: 'nature1',
+        name: 'Serene Forest',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80'
+    },
+    {
+        id: 'nature2',
+        name: 'Mountain Vista',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'
+    },
+    {
+        id: 'nature3',
+        name: 'Ocean Waves',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400&q=80'
+    },
+    {
+        id: 'nature4',
+        name: 'Sunset Sky',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&q=80'
+    },
+    {
+        id: 'abstract1',
+        name: 'Purple Dream',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=400&q=80'
+    },
+    {
+        id: 'abstract2',
+        name: 'Cosmic Blue',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=80'
+    },
+    {
+        id: 'minimal1',
+        name: 'Soft Pastels',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=400&q=80'
+    },
+    {
+        id: 'minimal2',
+        name: 'Gentle Blush',
+        type: 'image',
+        value: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&q=80',
+        preview: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400&q=80'
+    }
+];
 
 // ==================== MESSAGES ====================
 const focusMessages = [
@@ -77,6 +145,7 @@ let currentFilter = 'all';
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
+    initializeBackground();
     initializeTimers();
     initializeTodos();
     setupPresetButtons();
@@ -642,6 +711,16 @@ function setupControls() {
     
     document.getElementById('close-stats').addEventListener('click', () => {
         document.getElementById('stats-panel').classList.remove('show');
+    });
+    
+    // Settings toggle
+    document.getElementById('settings-toggle').addEventListener('click', () => {
+        const panel = document.getElementById('settings-panel');
+        panel.classList.toggle('show');
+    });
+    
+    document.getElementById('close-settings').addEventListener('click', () => {
+        document.getElementById('settings-panel').classList.remove('show');
     });
     
     // Reset stats

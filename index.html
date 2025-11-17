@@ -29,6 +29,9 @@
                     <button id="stats-toggle" class="icon-btn" aria-label="View statistics" title="View statistics (T)">
                         <span class="stats-icon">📊</span>
                     </button>
+                    <button id="settings-toggle" class="icon-btn" aria-label="Settings" title="Settings">
+                        <span class="settings-icon">⚙️</span>
+                    </button>
                 </div>
             </div>
             <h1 class="main-title">
@@ -38,6 +41,23 @@
             </h1>
             <p class="subtitle">Focus on your optometry studies, one session at a time!</p>
         </header>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="settings-panel">
+            <div class="settings-header">
+                <h2>⚙️ Settings</h2>
+                <button id="close-settings" class="close-btn">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3>🎨 Background Theme</h3>
+                    <p class="settings-description">Choose your favorite background to personalize your study space</p>
+                    <div class="background-grid" id="background-grid">
+                        <!-- Backgrounds will be added via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Statistics Dashboard -->
         <div id="stats-panel" class="stats-panel">
