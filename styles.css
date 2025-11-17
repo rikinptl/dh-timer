@@ -481,7 +481,7 @@ keyboard-hint kbd {
 .timer-display {
     display: flex;
     justify-content: center;
-    margin-bottom: 12px;
+    margin-bottom: 30px;
 }
 
 .time-circle {
@@ -848,7 +848,12 @@ keyboard-hint kbd {
 
 .todo-item.completed .todo-text {
     text-decoration: line-through;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
+    opacity: 0.7;
+}
+
+[data-theme="dark"] .todo-item.completed .todo-text {
+    color: rgba(255, 255, 255, 0.65);
 }
 
 .todo-checkbox {
@@ -862,8 +867,14 @@ keyboard-hint kbd {
 .todo-text {
     flex: 1;
     font-size: 1rem;
-    color: var(--text-dark);
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .todo-text {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .todo-delete {
@@ -893,14 +904,16 @@ keyboard-hint kbd {
     align-items: center;
     gap: 10px;
     padding-top: 8px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
     font-size: 0.8rem;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.85);
     font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .todo-stats {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .stat-item {
