@@ -584,8 +584,10 @@ body.focus-mode .focus-timer .custom-timer-container {
 }
 
 .section-content {
-    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
     overflow: hidden;
+    max-height: 2000px;
+    opacity: 1;
 }
 
 .timer-section.collapsed .section-content,
