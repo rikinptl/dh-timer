@@ -144,6 +144,8 @@ let currentFilter = 'all';
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
+    // Setup collapsible sections
+    setupCollapsibleSections();
     initializeTheme();
     initializeBackground();
     initializeTimers();
@@ -366,6 +368,9 @@ function startFocusTimer() {
     document.getElementById('focus-status').textContent = 'Running';
     document.getElementById('focus-status').classList.add('running');
     
+    // Enter focus mode - collapse everything and show only timer
+    enterFocusMode();
+    
     focusTimer.interval = setInterval(() => {
         focusTimer.currentSeconds--;
         updateFocusDisplay();
@@ -384,6 +389,9 @@ function pauseFocusTimer() {
     document.getElementById('focus-pause').disabled = true;
     document.getElementById('focus-status').textContent = 'Paused';
     document.getElementById('focus-status').classList.remove('running');
+    
+    // Exit focus mode
+    exitFocusMode();
 }
 
 function resetFocusTimer() {
@@ -465,6 +473,90 @@ function resetFocusProgress() {
 
 function resetBreakProgress() {
     breakTimer.circle.style.strokeDashoffset = breakTimer.circumference;
+}
+
+// ==================== COLLAPSE/EXPAND FUNCTIONALITY ====================
+function setupCollapsibleSections() {
+    document.querySelectorAll('.section-header').forEach(header => {
+        const section = header.closest('.timer-section, .todo-section');
+        const collapseBtn = header.querySelector('.collapse-btn');
+        
+        if (collapseBtn) {
+            collapseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSection(section);
+            });
+        }
+        
+        // Also allow clicking header to toggle
+        header.addEventListener('click', (e) => {
+            if (e.target !== collapseBtn && !collapseBtn.contains(e.target)) {
+                toggleSection(section);
+            }
+        });
+    });
+}
+
+function toggleSection(section) {
+    section.classList.toggle('collapsed');
+}
+
+function collapseAllSections() {
+    document.querySelectorAll('.timer-section, .todo-section').forEach(section => {
+        section.classList.add('collapsed');
+    });
+}
+
+function expandAllSections() {
+    document.querySelectorAll('.timer-section, .todo-section').forEach(section => {
+        section.classList.remove('collapsed');
+    });
+}
+
+// ==================== FOCUS MODE ====================
+function enterFocusMode() {
+    document.body.classList.add('focus-mode');
+    collapseAllSections();
+    
+    // Resize timer circle for focus mode
+    const focusCircle = document.querySelector('.focus-timer .progress-ring');
+    const circles = focusCircle.querySelectorAll('circle');
+    if (focusCircle && circles.length > 0) {
+        focusCircle.setAttribute('width', '300');
+        focusCircle.setAttribute('height', '300');
+        circles.forEach(circle => {
+            circle.setAttribute('cx', '150');
+            circle.setAttribute('cy', '150');
+            circle.setAttribute('r', '130');
+        });
+        
+        // Update circumference for larger circle
+        focusTimer.circumference = 2 * Math.PI * 130;
+        focusTimer.circle.style.strokeDasharray = focusTimer.circumference;
+        updateFocusProgress();
+    }
+}
+
+function exitFocusMode() {
+    document.body.classList.remove('focus-mode');
+    
+    // Restore timer circle size
+    const focusCircle = document.querySelector('.focus-timer .progress-ring');
+    const circles = focusCircle.querySelectorAll('circle');
+    if (focusCircle && circles.length > 0) {
+        focusCircle.setAttribute('width', '140');
+        focusCircle.setAttribute('height', '140');
+        circles.forEach(circle => {
+            circle.setAttribute('cx', '70');
+            circle.setAttribute('cy', '70');
+            circle.setAttribute('r', '60');
+        });
+        
+        // Restore circumference for smaller circle
+        focusTimer.circumference = 2 * Math.PI * 60;
+        focusTimer.circle.style.strokeDasharray = focusTimer.circumference;
+        updateFocusProgress();
+    }
 }
 
 function completeFocusSession() {
