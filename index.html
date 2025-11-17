@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhruvi's Study Timer 👓</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👓 Dhruvi's Study Timer 👓</h1>
+            <p class="subtitle">Focus on your optometry studies, one session at a time!</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Focus Session Timer -->
+            <section class="timer-section focus-timer">
+                <h2>🎯 Focus Session</h2>
+                <div class="timer-display">
+                    <div class="time-circle">
+                        <svg class="progress-ring" width="200" height="200">
+                            <circle class="progress-ring-circle" cx="100" cy="100" r="90"></circle>
+                        </svg>
+                        <div class="time-text">
+                            <span id="focus-time">25:00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button id="focus-start" class="btn btn-primary">Start Focus</button>
+                    <button id="focus-pause" class="btn btn-secondary" disabled>Pause</button>
+                    <button id="focus-reset" class="btn btn-secondary">Reset</button>
+                </div>
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-minutes="25">25 min</button>
+                    <button class="preset-btn" data-minutes="45">45 min</button>
+                    <button class="preset-btn" data-minutes="60">60 min</button>
+                </div>
+            </section>
+
+            <!-- Break Timer -->
+            <section class="timer-section break-timer">
+                <h2>☕ Break Time</h2>
+                <div class="timer-display">
+                    <div class="time-circle">
+                        <svg class="progress-ring" width="200" height="200">
+                            <circle class="progress-ring-circle break-circle" cx="100" cy="100" r="90"></circle>
+                        </svg>
+                        <div class="time-text">
+                            <span id="break-time">05:00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button id="break-start" class="btn btn-primary">Start Break</button>
+                    <button id="break-pause" class="btn btn-secondary" disabled>Pause</button>
+                    <button id="break-reset" class="btn btn-secondary">Reset</button>
+                </div>
+                <div class="preset-buttons">
+                    <button class="preset-btn break-preset" data-minutes="5">5 min</button>
+                    <button class="preset-btn break-preset" data-minutes="10">10 min</button>
+                    <button class="preset-btn break-preset" data-minutes="15">15 min</button>
+                </div>
+            </section>
+
+            <!-- To-Do List -->
+            <section class="todo-section">
+                <h2>📋 Study Tasks</h2>
+                <div class="todo-input-container">
+                    <input type="text" id="todo-input" placeholder="Add a study task... (e.g., Review eye anatomy)">
+                    <button id="add-todo" class="btn btn-primary">Add</button>
+                </div>
+                <ul id="todo-list" class="todo-list"></ul>
+                <div class="todo-stats">
+                    <span id="todo-count">0 tasks</span>
+                    <span id="completed-count">0 completed</span>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Pop-up Modal -->
+    <div id="popup-modal" class="popup-modal">
+        <div class="popup-content">
+            <div class="popup-icon" id="popup-icon">🎉</div>
+            <h3 id="popup-title">Great Job!</h3>
+            <p id="popup-message">You've completed your focus session!</p>
+            <button id="close-popup" class="btn btn-primary">Awesome!</button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
