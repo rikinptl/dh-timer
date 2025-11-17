@@ -1,10 +1,18 @@
-// Optometry-themed messages for pop-ups
+// ==================== CONFIGURATION ====================
+const CONFIG = {
+    soundEnabled: JSON.parse(localStorage.getItem('dhruvi-sound') ?? 'true'),
+    theme: localStorage.getItem('dhruvi-theme') || 'light',
+    particlesEnabled: true
+};
+
+// ==================== MESSAGES ====================
 const focusMessages = [
     { icon: "👓", title: "Focus Session Complete!", message: "You're seeing clearly through your studies! Keep up the amazing work!" },
     { icon: "🔬", title: "Great Focus!", message: "Your vision for success is 20/20! Time for a well-deserved break!" },
     { icon: "💪", title: "Study Power!", message: "You've mastered another session! Your optometry knowledge is getting sharper!" },
     { icon: "⭐", title: "Excellent Work!", message: "You're focusing like a pro! Your future patients will thank you!" },
-    { icon: "🎯", title: "Session Complete!", message: "You've hit the mark! Keep your eyes on the prize!" }
+    { icon: "🎯", title: "Session Complete!", message: "You've hit the mark! Keep your eyes on the prize!" },
+    { icon: "🏆", title: "Amazing!", message: "You're building incredible study habits! Your dedication is inspiring!" }
 ];
 
 const breakMessages = [
@@ -12,7 +20,8 @@ const breakMessages = [
     { icon: "🧘", title: "Relax & Recharge", message: "Take a moment to relax. Your brain needs breaks to process all that optometry knowledge!" },
     { icon: "💧", title: "Hydration Break!", message: "Stay hydrated! Your eyes (and brain) need water to function at their best!" },
     { icon: "🌿", title: "Nature Break", message: "Step outside if you can! Natural light is great for your circadian rhythm!" },
-    { icon: "🎵", title: "Music Break", message: "Put on some relaxing music and give your mind a rest. You've earned it!" }
+    { icon: "🎵", title: "Music Break", message: "Put on some relaxing music and give your mind a rest. You've earned it!" },
+    { icon: "👀", title: "Eye Care Break", message: "Blink frequently and look away from your screen. Your future self will thank you!" }
 ];
 
 const todoMessages = [
@@ -21,14 +30,14 @@ const todoMessages = [
     { icon: "📚", title: "Keep Going!", message: "You're building great study habits! Keep it up!" }
 ];
 
-// Timer State
+// ==================== TIMER STATE ====================
 let focusTimer = {
     totalSeconds: 25 * 60,
     currentSeconds: 25 * 60,
     interval: null,
     isRunning: false,
     circle: null,
-    circumference: 2 * Math.PI * 90
+    circumference: 2 * Math.PI * 100
 };
 
 let breakTimer = {
@@ -37,26 +46,82 @@ let breakTimer = {
     interval: null,
     isRunning: false,
     circle: null,
-    circumference: 2 * Math.PI * 90
+    circumference: 2 * Math.PI * 100
 };
 
-// Initialize
+// ==================== STATISTICS ====================
+let statistics = JSON.parse(localStorage.getItem('dhruvi-stats')) || {
+    totalSessions: 0,
+    totalStudyTime: 0, // in minutes
+    tasksCompleted: 0,
+    lastSessionDate: null,
+    currentStreak: 0,
+    longestStreak: 0
+};
+
+// ==================== TODO STATE ====================
+let todos = JSON.parse(localStorage.getItem('dhruvi-todos')) || [];
+let todoIdCounter = parseInt(localStorage.getItem('dhruvi-todo-id')) || 0;
+let currentFilter = 'all';
+
+// ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
     initializeTimers();
     initializeTodos();
     setupPresetButtons();
+    setupControls();
+    setupKeyboardShortcuts();
+    initializeParticles();
+    updateStatistics();
+    updateSoundIcon();
 });
 
+// ==================== THEME MANAGEMENT ====================
+function initializeTheme() {
+    if (CONFIG.theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.querySelector('.theme-icon').textContent = '☀️';
+    }
+}
+
+function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        document.querySelector('.theme-icon').textContent = '🌙';
+        CONFIG.theme = 'light';
+    } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.querySelector('.theme-icon').textContent = '☀️';
+        CONFIG.theme = 'dark';
+    }
+    localStorage.setItem('dhruvi-theme', CONFIG.theme);
+}
+
+// ==================== SOUND MANAGEMENT ====================
+function toggleSound() {
+    CONFIG.soundEnabled = !CONFIG.soundEnabled;
+    localStorage.setItem('dhruvi-sound', CONFIG.soundEnabled.toString());
+    updateSoundIcon();
+    showToast(CONFIG.soundEnabled ? '🔊 Sound enabled' : '🔇 Sound disabled');
+}
+
+function updateSoundIcon() {
+    document.querySelector('.sound-icon').textContent = CONFIG.soundEnabled ? '🔊' : '🔇';
+}
+
+// ==================== TIMER FUNCTIONS ====================
 function initializeTimers() {
     // Focus timer
     focusTimer.circle = document.querySelector('.focus-timer .progress-ring-circle');
     focusTimer.circle.style.strokeDasharray = focusTimer.circumference;
-    focusTimer.circle.style.strokeDashoffset = 0;
+    focusTimer.circle.style.strokeDashoffset = focusTimer.circumference;
     
     // Break timer
     breakTimer.circle = document.querySelector('.break-timer .progress-ring-circle');
     breakTimer.circle.style.strokeDasharray = breakTimer.circumference;
-    breakTimer.circle.style.strokeDashoffset = 0;
+    breakTimer.circle.style.strokeDashoffset = breakTimer.circumference;
     
     // Focus timer controls
     document.getElementById('focus-start').addEventListener('click', () => startFocusTimer());
@@ -78,6 +143,9 @@ function setupPresetButtons() {
         btn.addEventListener('click', () => {
             const minutes = parseInt(btn.dataset.minutes);
             setFocusTime(minutes);
+            // Update active state
+            document.querySelectorAll('.focus-timer .preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         });
     });
     
@@ -86,6 +154,9 @@ function setupPresetButtons() {
         btn.addEventListener('click', () => {
             const minutes = parseInt(btn.dataset.minutes);
             setBreakTime(minutes);
+            // Update active state
+            document.querySelectorAll('.break-timer .preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         });
     });
 }
@@ -112,6 +183,8 @@ function startFocusTimer() {
     focusTimer.isRunning = true;
     document.getElementById('focus-start').disabled = true;
     document.getElementById('focus-pause').disabled = false;
+    document.getElementById('focus-status').textContent = 'Running';
+    document.getElementById('focus-status').classList.add('running');
     
     focusTimer.interval = setInterval(() => {
         focusTimer.currentSeconds--;
@@ -129,6 +202,8 @@ function pauseFocusTimer() {
     clearInterval(focusTimer.interval);
     document.getElementById('focus-start').disabled = false;
     document.getElementById('focus-pause').disabled = true;
+    document.getElementById('focus-status').textContent = 'Paused';
+    document.getElementById('focus-status').classList.remove('running');
 }
 
 function resetFocusTimer() {
@@ -136,6 +211,8 @@ function resetFocusTimer() {
     focusTimer.currentSeconds = focusTimer.totalSeconds;
     updateFocusDisplay();
     resetFocusProgress();
+    document.getElementById('focus-status').textContent = 'Ready';
+    document.getElementById('focus-status').classList.remove('running');
 }
 
 function startBreakTimer() {
@@ -144,6 +221,8 @@ function startBreakTimer() {
     breakTimer.isRunning = true;
     document.getElementById('break-start').disabled = true;
     document.getElementById('break-pause').disabled = false;
+    document.getElementById('break-status').textContent = 'Running';
+    document.getElementById('break-status').classList.add('running');
     
     breakTimer.interval = setInterval(() => {
         breakTimer.currentSeconds--;
@@ -161,6 +240,8 @@ function pauseBreakTimer() {
     clearInterval(breakTimer.interval);
     document.getElementById('break-start').disabled = false;
     document.getElementById('break-pause').disabled = true;
+    document.getElementById('break-status').textContent = 'Paused';
+    document.getElementById('break-status').classList.remove('running');
 }
 
 function resetBreakTimer() {
@@ -168,6 +249,8 @@ function resetBreakTimer() {
     breakTimer.currentSeconds = breakTimer.totalSeconds;
     updateBreakDisplay();
     resetBreakProgress();
+    document.getElementById('break-status').textContent = 'Ready';
+    document.getElementById('break-status').classList.remove('running');
 }
 
 function updateFocusDisplay() {
@@ -206,12 +289,23 @@ function resetBreakProgress() {
 
 function completeFocusSession() {
     pauseFocusTimer();
+    
+    // Update statistics
+    statistics.totalSessions++;
+    statistics.totalStudyTime += Math.floor(focusTimer.totalSeconds / 60);
+    updateStreak();
+    saveStatistics();
+    updateStatistics();
+    
+    // Show celebration
     const message = focusMessages[Math.floor(Math.random() * focusMessages.length)];
     showPopup(message.icon, message.title, message.message);
     showToast("🎉 Focus session complete! Time for a break!");
+    triggerConfetti();
     
-    // Play notification sound if available
-    playNotificationSound();
+    if (CONFIG.soundEnabled) {
+        playNotificationSound('success');
+    }
 }
 
 function completeBreakSession() {
@@ -220,29 +314,48 @@ function completeBreakSession() {
     showPopup(message.icon, message.title, message.message);
     showToast("☕ Break time's up! Ready to focus again?");
     
-    playNotificationSound();
+    if (CONFIG.soundEnabled) {
+        playNotificationSound('break');
+    }
 }
 
-function playNotificationSound() {
-    // Create a simple beep sound
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+// ==================== SOUND FUNCTIONS ====================
+function playNotificationSound(type = 'success') {
+    if (!CONFIG.soundEnabled) return;
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        if (type === 'success') {
+            // Success sound - ascending notes
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        } else {
+            // Break sound - gentle chime
+            oscillator.frequency.value = 440;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.8);
+        }
+    } catch (e) {
+        console.log('Audio context not available');
+    }
 }
 
-// Pop-up Functions
+// ==================== POPUP & TOAST ====================
 function showPopup(icon, title, message) {
     document.getElementById('popup-icon').textContent = icon;
     document.getElementById('popup-title').textContent = title;
@@ -254,14 +367,6 @@ function closePopup() {
     document.getElementById('popup-modal').classList.remove('show');
 }
 
-document.getElementById('close-popup').addEventListener('click', closePopup);
-document.getElementById('popup-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'popup-modal') {
-        closePopup();
-    }
-});
-
-// Toast Notification
 function showToast(message) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -272,16 +377,83 @@ function showToast(message) {
     }, 3000);
 }
 
-// To-Do List Functions
-let todos = JSON.parse(localStorage.getItem('dhruvi-todos')) || [];
-let todoIdCounter = parseInt(localStorage.getItem('dhruvi-todo-id')) || 0;
+// ==================== STATISTICS ====================
+function updateStreak() {
+    const today = new Date().toDateString();
+    const lastDate = statistics.lastSessionDate ? new Date(statistics.lastSessionDate).toDateString() : null;
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+    
+    if (lastDate === today) {
+        // Already counted today
+        return;
+    } else if (lastDate === yesterdayStr || lastDate === null) {
+        // Continue or start streak
+        statistics.currentStreak++;
+        if (statistics.currentStreak > statistics.longestStreak) {
+            statistics.longestStreak = statistics.currentStreak;
+        }
+    } else {
+        // Streak broken
+        statistics.currentStreak = 1;
+    }
+    
+    statistics.lastSessionDate = today;
+}
 
+function updateStatistics() {
+    document.getElementById('streak-count').textContent = statistics.currentStreak;
+    document.getElementById('total-sessions').textContent = statistics.totalSessions;
+    
+    const hours = Math.floor(statistics.totalStudyTime / 60);
+    const minutes = statistics.totalStudyTime % 60;
+    if (hours > 0) {
+        document.getElementById('total-time').textContent = `${hours}h ${minutes}m`;
+    } else {
+        document.getElementById('total-time').textContent = `${minutes}m`;
+    }
+    
+    document.getElementById('tasks-completed').textContent = statistics.tasksCompleted;
+}
+
+function saveStatistics() {
+    localStorage.setItem('dhruvi-stats', JSON.stringify(statistics));
+}
+
+function resetStatistics() {
+    if (confirm('Are you sure you want to reset all statistics? This cannot be undone.')) {
+        statistics = {
+            totalSessions: 0,
+            totalStudyTime: 0,
+            tasksCompleted: 0,
+            lastSessionDate: null,
+            currentStreak: 0,
+            longestStreak: 0
+        };
+        saveStatistics();
+        updateStatistics();
+        showToast('📊 Statistics reset!');
+    }
+}
+
+// ==================== TODO LIST ====================
 function initializeTodos() {
     document.getElementById('add-todo').addEventListener('click', addTodo);
     document.getElementById('todo-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             addTodo();
         }
+    });
+    
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentFilter = btn.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTodos();
+        });
     });
     
     renderTodos();
@@ -300,7 +472,8 @@ function addTodo() {
     todos.push({
         id: todoIdCounter++,
         text: text,
-        completed: false
+        completed: false,
+        createdAt: new Date().toISOString()
     });
     
     localStorage.setItem('dhruvi-todos', JSON.stringify(todos));
@@ -317,6 +490,11 @@ function toggleTodo(id) {
     const todo = todos.find(t => t.id === id);
     if (todo) {
         todo.completed = !todo.completed;
+        if (todo.completed) {
+            statistics.tasksCompleted++;
+            saveStatistics();
+            updateStatistics();
+        }
         localStorage.setItem('dhruvi-todos', JSON.stringify(todos));
         renderTodos();
         updateTodoStats();
@@ -328,6 +506,7 @@ function toggleTodo(id) {
             if (completedTodos === totalTodos && totalTodos > 0) {
                 const message = todoMessages[1];
                 showPopup(message.icon, message.title, message.message);
+                triggerConfetti();
             } else {
                 showToast("✅ Task completed!");
             }
@@ -347,12 +526,22 @@ function renderTodos() {
     const todoList = document.getElementById('todo-list');
     todoList.innerHTML = '';
     
-    if (todos.length === 0) {
-        todoList.innerHTML = '<li style="text-align: center; color: var(--text-light); padding: 20px;">No tasks yet. Add one to get started! 👓</li>';
+    let filteredTodos = todos;
+    if (currentFilter === 'active') {
+        filteredTodos = todos.filter(t => !t.completed);
+    } else if (currentFilter === 'completed') {
+        filteredTodos = todos.filter(t => t.completed);
+    }
+    
+    if (filteredTodos.length === 0) {
+        const emptyMsg = currentFilter === 'all' ? 'No tasks yet. Add one to get started! 👓' :
+                        currentFilter === 'active' ? 'No active tasks! 🎉' :
+                        'No completed tasks yet.';
+        todoList.innerHTML = `<li style="text-align: center; color: var(--text-light); padding: 20px;">${emptyMsg}</li>`;
         return;
     }
     
-    todos.forEach(todo => {
+    filteredTodos.forEach(todo => {
         const li = document.createElement('li');
         li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
         
@@ -383,7 +572,249 @@ function updateTodoStats() {
     const total = todos.length;
     const completed = todos.filter(t => t.completed).length;
     
-    document.getElementById('todo-count').textContent = `${total} task${total !== 1 ? 's' : ''}`;
-    document.getElementById('completed-count').textContent = `${completed} completed`;
+    document.getElementById('todo-count').textContent = total;
+    document.getElementById('completed-count').textContent = completed;
 }
 
+// ==================== CONTROLS SETUP ====================
+function setupControls() {
+    // Dark mode toggle
+    document.getElementById('dark-mode-toggle').addEventListener('click', toggleTheme);
+    
+    // Sound toggle
+    document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+    
+    // Statistics toggle
+    document.getElementById('stats-toggle').addEventListener('click', () => {
+        const panel = document.getElementById('stats-panel');
+        panel.classList.toggle('show');
+        updateStatistics();
+    });
+    
+    document.getElementById('close-stats').addEventListener('click', () => {
+        document.getElementById('stats-panel').classList.remove('show');
+    });
+    
+    // Reset stats
+    document.getElementById('reset-stats').addEventListener('click', resetStatistics);
+    
+    // Popup close
+    document.getElementById('close-popup').addEventListener('click', closePopup);
+    document.getElementById('popup-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'popup-modal') {
+            closePopup();
+        }
+    });
+    
+    // Shortcuts modal
+    document.getElementById('close-shortcuts').addEventListener('click', () => {
+        document.getElementById('shortcuts-modal').classList.remove('show');
+    });
+}
+
+// ==================== KEYBOARD SHORTCUTS ====================
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Don't trigger shortcuts when typing in input
+        if (e.target.tagName === 'INPUT' && e.key !== 'Enter') return;
+        
+        switch(e.key) {
+            case ' ':
+                e.preventDefault();
+                if (focusTimer.isRunning) {
+                    pauseFocusTimer();
+                } else {
+                    startFocusTimer();
+                }
+                break;
+            case '1':
+                e.preventDefault();
+                setFocusTime(25);
+                document.querySelectorAll('.focus-timer .preset-btn')[0].classList.add('active');
+                break;
+            case '2':
+                e.preventDefault();
+                setFocusTime(45);
+                document.querySelectorAll('.focus-timer .preset-btn')[1].classList.add('active');
+                break;
+            case '3':
+                e.preventDefault();
+                setFocusTime(60);
+                document.querySelectorAll('.focus-timer .preset-btn')[2].classList.add('active');
+                break;
+            case '4':
+                e.preventDefault();
+                setBreakTime(5);
+                document.querySelectorAll('.break-timer .preset-btn')[0].classList.add('active');
+                break;
+            case '5':
+                e.preventDefault();
+                setBreakTime(10);
+                document.querySelectorAll('.break-timer .preset-btn')[1].classList.add('active');
+                break;
+            case '6':
+                e.preventDefault();
+                setBreakTime(15);
+                document.querySelectorAll('.break-timer .preset-btn')[2].classList.add('active');
+                break;
+            case 'r':
+            case 'R':
+                e.preventDefault();
+                if (focusTimer.isRunning) resetFocusTimer();
+                else if (breakTimer.isRunning) resetBreakTimer();
+                break;
+            case 'd':
+            case 'D':
+                e.preventDefault();
+                toggleTheme();
+                break;
+            case 's':
+            case 'S':
+                e.preventDefault();
+                toggleSound();
+                break;
+            case 't':
+            case 'T':
+                e.preventDefault();
+                document.getElementById('stats-panel').classList.toggle('show');
+                updateStatistics();
+                break;
+            case '?':
+                e.preventDefault();
+                document.getElementById('shortcuts-modal').classList.toggle('show');
+                break;
+            case 'Escape':
+                document.getElementById('popup-modal').classList.remove('show');
+                document.getElementById('shortcuts-modal').classList.remove('show');
+                document.getElementById('stats-panel').classList.remove('show');
+                break;
+        }
+    });
+}
+
+// ==================== PARTICLE ANIMATION ====================
+function initializeParticles() {
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const particles = [];
+    const particleCount = 50;
+    
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = Math.random() * 0.5 - 0.25;
+            this.speedY = Math.random() * 0.5 - 0.25;
+            this.opacity = Math.random() * 0.5 + 0.2;
+        }
+        
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            
+            if (this.x > canvas.width) this.x = 0;
+            if (this.x < 0) this.x = canvas.width;
+            if (this.y > canvas.height) this.y = 0;
+            if (this.y < 0) this.y = canvas.height;
+        }
+        
+        draw() {
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+    
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+}
+
+// ==================== CONFETTI ANIMATION ====================
+function triggerConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const confetti = [];
+    const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
+    
+    class ConfettiPiece {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = -10;
+            this.size = Math.random() * 10 + 5;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.speedY = Math.random() * 3 + 2;
+            this.speedX = (Math.random() - 0.5) * 2;
+            this.rotation = Math.random() * 360;
+            this.rotationSpeed = (Math.random() - 0.5) * 10;
+        }
+        
+        update() {
+            this.y += this.speedY;
+            this.x += this.speedX;
+            this.rotation += this.rotationSpeed;
+        }
+        
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation * Math.PI / 180);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+            ctx.restore();
+        }
+    }
+    
+    for (let i = 0; i < 100; i++) {
+        confetti.push(new ConfettiPiece());
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        confetti.forEach((piece, index) => {
+            piece.update();
+            piece.draw();
+            
+            if (piece.y > canvas.height) {
+                confetti.splice(index, 1);
+            }
+        });
+        
+        if (confetti.length > 0) {
+            requestAnimationFrame(animate);
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+    
+    animate();
+}

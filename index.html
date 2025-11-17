@@ -4,77 +4,209 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dhruvi's Study Timer 👓</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <canvas id="particles-canvas"></canvas>
+    </div>
+
     <div class="container">
+        <!-- Header with Controls -->
         <header>
-            <h1>👓 Dhruvi's Study Timer 👓</h1>
+            <div class="header-top">
+                <div class="header-controls">
+                    <button id="dark-mode-toggle" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode (D)">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <button id="sound-toggle" class="icon-btn" aria-label="Toggle sound" title="Toggle sound (S)">
+                        <span class="sound-icon">🔊</span>
+                    </button>
+                    <button id="stats-toggle" class="icon-btn" aria-label="View statistics" title="View statistics (T)">
+                        <span class="stats-icon">📊</span>
+                    </button>
+                </div>
+            </div>
+            <h1 class="main-title">
+                <span class="title-icon">👓</span>
+                <span class="title-text">Dhruvi's Study Timer</span>
+                <span class="title-icon">👓</span>
+            </h1>
             <p class="subtitle">Focus on your optometry studies, one session at a time!</p>
+            <div class="keyboard-hint">💡 Press <kbd>?</kbd> for keyboard shortcuts</div>
         </header>
+
+        <!-- Statistics Dashboard -->
+        <div id="stats-panel" class="stats-panel">
+            <div class="stats-header">
+                <h2>📊 Your Study Statistics</h2>
+                <button id="close-stats" class="close-btn">&times;</button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value" id="streak-count">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-value" id="total-sessions">0</div>
+                    <div class="stat-label">Sessions Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-value" id="total-time">0h</div>
+                    <div class="stat-label">Total Study Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="tasks-completed">0</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+            </div>
+            <div class="stats-actions">
+                <button id="reset-stats" class="btn btn-secondary">Reset Statistics</button>
+            </div>
+        </div>
 
         <div class="main-content">
             <!-- Focus Session Timer -->
             <section class="timer-section focus-timer">
-                <h2>🎯 Focus Session</h2>
+                <div class="section-header">
+                    <h2>
+                        <span class="section-icon">🎯</span>
+                        Focus Session
+                    </h2>
+                    <div class="timer-status" id="focus-status">Ready</div>
+                </div>
                 <div class="timer-display">
                     <div class="time-circle">
-                        <svg class="progress-ring" width="200" height="200">
-                            <circle class="progress-ring-circle" cx="100" cy="100" r="90"></circle>
+                        <svg class="progress-ring" width="220" height="220">
+                            <circle class="progress-ring-bg" cx="110" cy="110" r="100"></circle>
+                            <circle class="progress-ring-circle" cx="110" cy="110" r="100"></circle>
                         </svg>
                         <div class="time-text">
                             <span id="focus-time">25:00</span>
                         </div>
+                        <div class="timer-label">Focus Time</div>
                     </div>
                 </div>
                 <div class="timer-controls">
-                    <button id="focus-start" class="btn btn-primary">Start Focus</button>
-                    <button id="focus-pause" class="btn btn-secondary" disabled>Pause</button>
-                    <button id="focus-reset" class="btn btn-secondary">Reset</button>
+                    <button id="focus-start" class="btn btn-primary">
+                        <span class="btn-icon">▶️</span>
+                        <span>Start Focus</span>
+                    </button>
+                    <button id="focus-pause" class="btn btn-secondary" disabled>
+                        <span class="btn-icon">⏸️</span>
+                        <span>Pause</span>
+                    </button>
+                    <button id="focus-reset" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span>
+                        <span>Reset</span>
+                    </button>
                 </div>
                 <div class="preset-buttons">
-                    <button class="preset-btn" data-minutes="25">25 min</button>
-                    <button class="preset-btn" data-minutes="45">45 min</button>
-                    <button class="preset-btn" data-minutes="60">60 min</button>
+                    <button class="preset-btn" data-minutes="25" title="25 minutes (Press 1)">
+                        <span>25</span>
+                        <small>min</small>
+                    </button>
+                    <button class="preset-btn" data-minutes="45" title="45 minutes (Press 2)">
+                        <span>45</span>
+                        <small>min</small>
+                    </button>
+                    <button class="preset-btn" data-minutes="60" title="60 minutes (Press 3)">
+                        <span>60</span>
+                        <small>min</small>
+                    </button>
                 </div>
             </section>
 
             <!-- Break Timer -->
             <section class="timer-section break-timer">
-                <h2>☕ Break Time</h2>
+                <div class="section-header">
+                    <h2>
+                        <span class="section-icon">☕</span>
+                        Break Time
+                    </h2>
+                    <div class="timer-status" id="break-status">Ready</div>
+                </div>
                 <div class="timer-display">
                     <div class="time-circle">
-                        <svg class="progress-ring" width="200" height="200">
-                            <circle class="progress-ring-circle break-circle" cx="100" cy="100" r="90"></circle>
+                        <svg class="progress-ring" width="220" height="220">
+                            <circle class="progress-ring-bg" cx="110" cy="110" r="100"></circle>
+                            <circle class="progress-ring-circle break-circle" cx="110" cy="110" r="100"></circle>
                         </svg>
                         <div class="time-text">
                             <span id="break-time">05:00</span>
                         </div>
+                        <div class="timer-label">Break Time</div>
                     </div>
                 </div>
                 <div class="timer-controls">
-                    <button id="break-start" class="btn btn-primary">Start Break</button>
-                    <button id="break-pause" class="btn btn-secondary" disabled>Pause</button>
-                    <button id="break-reset" class="btn btn-secondary">Reset</button>
+                    <button id="break-start" class="btn btn-primary">
+                        <span class="btn-icon">▶️</span>
+                        <span>Start Break</span>
+                    </button>
+                    <button id="break-pause" class="btn btn-secondary" disabled>
+                        <span class="btn-icon">⏸️</span>
+                        <span>Pause</span>
+                    </button>
+                    <button id="break-reset" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span>
+                        <span>Reset</span>
+                    </button>
                 </div>
                 <div class="preset-buttons">
-                    <button class="preset-btn break-preset" data-minutes="5">5 min</button>
-                    <button class="preset-btn break-preset" data-minutes="10">10 min</button>
-                    <button class="preset-btn break-preset" data-minutes="15">15 min</button>
+                    <button class="preset-btn break-preset" data-minutes="5" title="5 minutes (Press 4)">
+                        <span>5</span>
+                        <small>min</small>
+                    </button>
+                    <button class="preset-btn break-preset" data-minutes="10" title="10 minutes (Press 5)">
+                        <span>10</span>
+                        <small>min</small>
+                    </button>
+                    <button class="preset-btn break-preset" data-minutes="15" title="15 minutes (Press 6)">
+                        <span>15</span>
+                        <small>min</small>
+                    </button>
                 </div>
             </section>
 
             <!-- To-Do List -->
             <section class="todo-section">
-                <h2>📋 Study Tasks</h2>
+                <div class="section-header">
+                    <h2>
+                        <span class="section-icon">📋</span>
+                        Study Tasks
+                    </h2>
+                </div>
                 <div class="todo-input-container">
-                    <input type="text" id="todo-input" placeholder="Add a study task... (e.g., Review eye anatomy)">
-                    <button id="add-todo" class="btn btn-primary">Add</button>
+                    <input type="text" id="todo-input" placeholder="Add a study task... (e.g., Review eye anatomy)" autocomplete="off">
+                    <button id="add-todo" class="btn btn-primary">
+                        <span class="btn-icon">➕</span>
+                        <span>Add</span>
+                    </button>
+                </div>
+                <div class="todo-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
                 </div>
                 <ul id="todo-list" class="todo-list"></ul>
                 <div class="todo-stats">
-                    <span id="todo-count">0 tasks</span>
-                    <span id="completed-count">0 completed</span>
+                    <div class="stat-item">
+                        <span class="stat-number" id="todo-count">0</span>
+                        <span class="stat-text">tasks</span>
+                    </div>
+                    <div class="stat-divider">•</div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="completed-count">0</span>
+                        <span class="stat-text">completed</span>
+                    </div>
                 </div>
             </section>
         </div>
@@ -90,8 +222,53 @@
         </div>
     </div>
 
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcuts-modal" class="popup-modal">
+        <div class="popup-content shortcuts-content">
+            <h3>⌨️ Keyboard Shortcuts</h3>
+            <div class="shortcuts-list">
+                <div class="shortcut-item">
+                    <kbd>Space</kbd>
+                    <span>Start/Pause Focus Timer</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>
+                    <span>Set Focus Time (25/45/60 min)</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>4</kbd>, <kbd>5</kbd>, <kbd>6</kbd>
+                    <span>Set Break Time (5/10/15 min)</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>R</kbd>
+                    <span>Reset Active Timer</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>D</kbd>
+                    <span>Toggle Dark Mode</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>S</kbd>
+                    <span>Toggle Sound</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>T</kbd>
+                    <span>Toggle Statistics</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>?</kbd>
+                    <span>Show/Hide Shortcuts</span>
+                </div>
+            </div>
+            <button id="close-shortcuts" class="btn btn-primary">Got it!</button>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="toast"></div>
+
+    <!-- Confetti Container -->
+    <canvas id="confetti-canvas"></canvas>
 
     <script src="script.js"></script>
 </body>
