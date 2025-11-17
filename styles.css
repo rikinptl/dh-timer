@@ -518,6 +518,59 @@ keyboard-hint kbd {
     color: white;
 }
 
+/* Custom Timer Input */
+.custom-timer-container {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid var(--border-color);
+}
+
+.custom-timer-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.custom-timer-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-timer-input {
+    flex: 1;
+    max-width: 120px;
+    padding: 10px 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-dark);
+    background: var(--card-bg);
+    transition: var(--transition);
+}
+
+.custom-timer-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.custom-timer-input::placeholder {
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+.custom-timer-btn {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+}
+
 /* To-Do List Styles */
 .todo-input-container {
     display: flex;

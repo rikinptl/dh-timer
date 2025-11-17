@@ -163,6 +163,8 @@ function setupPresetButtons() {
             // Update active state
             document.querySelectorAll('.focus-timer .preset-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            // Clear custom input
+            document.getElementById('custom-focus-time').value = '';
         });
     });
     
@@ -175,6 +177,30 @@ function setupPresetButtons() {
             document.querySelectorAll('.break-timer .preset-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         });
+    });
+    
+    // Custom focus timer
+    const customFocusInput = document.getElementById('custom-focus-time');
+    const setCustomFocusBtn = document.getElementById('set-custom-focus');
+    
+    setCustomFocusBtn.addEventListener('click', () => {
+        const minutes = parseInt(customFocusInput.value);
+        if (minutes && minutes > 0 && minutes <= 999) {
+            setFocusTime(minutes);
+            // Clear active state from preset buttons
+            document.querySelectorAll('.focus-timer .preset-btn').forEach(b => b.classList.remove('active'));
+            showToast(`⏱️ Custom timer set to ${minutes} minutes!`);
+        } else {
+            showToast('⚠️ Please enter a valid number between 1 and 999 minutes');
+            customFocusInput.focus();
+        }
+    });
+    
+    // Allow Enter key to set custom time
+    customFocusInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            setCustomFocusBtn.click();
+        }
     });
 }
 
