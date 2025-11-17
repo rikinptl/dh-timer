@@ -927,8 +927,16 @@ function setupCatVideoChromaKey(videoId, canvasId) {
     
     if (!video || !canvas) return;
     
+    let isProcessing = false;
+    
     // Wait for video metadata
-    video.addEventListener('loadedmetadata', () => {
+    const setupProcessing = () => {
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+            // Video not ready yet, try again
+            setTimeout(setupProcessing, 100);
+            return;
+        }
+        
         const width = video.videoWidth || 300;
         const height = video.videoHeight || 300;
         canvas.width = width;
@@ -936,21 +944,47 @@ function setupCatVideoChromaKey(videoId, canvasId) {
         
         // Start processing frames
         function processFrame() {
-            if (!video.paused && !video.ended) {
-                applyChromaKey(video, canvas);
-                requestAnimationFrame(processFrame);
+            if (!video.paused && !video.ended && video.readyState >= 2) {
+                try {
+                    applyChromaKey(video, canvas);
+                    isProcessing = true;
+                    requestAnimationFrame(processFrame);
+                } catch (e) {
+                    console.error('Chroma key processing error:', e);
+                    // Fallback: just draw the video without processing
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, width, height);
+                    if (!video.paused) {
+                        requestAnimationFrame(processFrame);
+                    }
+                }
+            } else {
+                isProcessing = false;
             }
         }
         
-        video.addEventListener('play', () => {
-            processFrame();
-        });
+        // Start processing when video plays
+        const startProcessing = () => {
+            if (!isProcessing) {
+                processFrame();
+            }
+        };
+        
+        video.addEventListener('play', startProcessing);
+        video.addEventListener('loadeddata', startProcessing);
         
         // Process first frame if already playing
-        if (!video.paused) {
-            processFrame();
+        if (!video.paused && video.readyState >= 2) {
+            startProcessing();
         }
-    });
+    };
+    
+    video.addEventListener('loadedmetadata', setupProcessing);
+    
+    // Also try setup if metadata already loaded
+    if (video.readyState >= 1) {
+        setupProcessing();
+    }
 }
 
 function showCatCelebration() {
@@ -970,37 +1004,56 @@ function showCatCelebration() {
     // Show celebration overlay
     celebration.classList.add('show');
     
-    // Setup chroma key for each video
-    setupCatVideoChromaKey('cat-video-1', 'cat-canvas-1');
-    setupCatVideoChromaKey('cat-video-2', 'cat-canvas-2');
-    setupCatVideoChromaKey('cat-video-3', 'cat-canvas-3');
-    setupCatVideoChromaKey('cat-video-4', 'cat-canvas-4');
-    setupCatVideoChromaKey('cat-video-5', 'cat-canvas-5');
-    
-    // Play all videos with audio
+    // Setup chroma key for each video BEFORE playing
     videos.forEach((video, index) => {
-        video.currentTime = 0; // Reset to start
-        video.muted = false; // Unmute to play audio
-        video.volume = 0.6; // Set volume
+        const canvasId = `cat-canvas-${index + 1}`;
+        setupCatVideoChromaKey(video.id, canvasId);
         
-        video.play().catch(e => {
-            console.log('Video autoplay prevented, user interaction required');
-            // If autoplay fails, we'll handle it when user clicks
-        });
+        // Ensure video loads
+        video.load();
         
-        // Stagger the start times slightly for more natural effect
-        setTimeout(() => {
-            if (video.paused) {
-                video.play().catch(e => console.log('Video play error:', e));
+        // Wait for video to be ready
+        const playVideo = () => {
+            if (video.readyState >= 2) { // HAVE_CURRENT_DATA or better
+                video.currentTime = 0;
+                video.muted = false;
+                video.volume = index === 0 ? 0.7 : 0.5; // First video louder
+                
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            console.log(`Video ${index + 1} playing`);
+                        })
+                        .catch(error => {
+                            console.log(`Video ${index + 1} autoplay prevented:`, error);
+                            // Try with muted first, then unmute after user interaction
+                            video.muted = true;
+                            video.play()
+                                .then(() => {
+                                    // Unmute after a short delay
+                                    setTimeout(() => {
+                                        video.muted = false;
+                                    }, 500);
+                                })
+                                .catch(e => console.log('Video play error:', e));
+                        });
+                }
+            } else {
+                // Video not ready yet, wait a bit
+                setTimeout(playVideo, 100);
             }
-        }, index * 200);
+        };
+        
+        // Stagger the start times
+        setTimeout(() => {
+            if (video.readyState >= 1) {
+                playVideo();
+            } else {
+                video.addEventListener('loadeddata', playVideo, { once: true });
+            }
+        }, index * 300);
     });
-    
-    // Ensure at least one video plays audio (browser autoplay restrictions)
-    if (videos.length > 0) {
-        videos[0].muted = false;
-        videos[0].volume = 0.7; // Set volume
-    }
 }
 
 function closeCatCelebration() {

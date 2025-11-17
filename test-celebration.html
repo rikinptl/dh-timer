@@ -99,40 +99,49 @@
             overflow: hidden;
         }
 
-        .cat-video {
+        .cat-video-source {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cat-canvas {
             position: absolute;
             width: 300px;
             height: auto;
-            object-fit: contain;
             filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
             opacity: 0.9;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
 
-        #cat-video-1 {
+        #cat-canvas-1 {
             top: 10%;
             left: 5%;
             animation: catFloat1 4s ease-in-out infinite;
         }
 
-        #cat-video-2 {
+        #cat-canvas-2 {
             top: 15%;
             right: 10%;
             animation: catFloat2 3.5s ease-in-out infinite;
         }
 
-        #cat-video-3 {
+        #cat-canvas-3 {
             bottom: 20%;
             left: 8%;
             animation: catFloat3 4.5s ease-in-out infinite;
         }
 
-        #cat-video-4 {
+        #cat-canvas-4 {
             bottom: 15%;
             right: 5%;
             animation: catFloat4 3.8s ease-in-out infinite;
         }
 
-        #cat-video-5 {
+        #cat-canvas-5 {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -224,35 +233,35 @@
         }
 
         @media (max-width: 768px) {
-            .cat-video {
+            .cat-canvas {
                 width: 200px;
             }
             
-            #cat-video-1 {
+            #cat-canvas-1 {
                 top: 5%;
                 left: 2%;
                 transform: scale(0.6);
             }
             
-            #cat-video-2 {
+            #cat-canvas-2 {
                 top: 10%;
                 right: 2%;
                 transform: scale(0.65);
             }
             
-            #cat-video-3 {
+            #cat-canvas-3 {
                 bottom: 15%;
                 left: 2%;
                 transform: scale(0.6);
             }
             
-            #cat-video-4 {
+            #cat-canvas-4 {
                 bottom: 10%;
                 right: 2%;
                 transform: scale(0.65);
             }
             
-            #cat-video-5 {
+            #cat-canvas-5 {
                 transform: translate(-50%, -50%) scale(0.5);
             }
             
@@ -281,19 +290,24 @@
     <!-- Cat Celebration Overlay -->
     <div id="cat-celebration" class="cat-celebration">
         <div class="cat-videos-container">
-            <video class="cat-video" id="cat-video-1" loop>
+            <canvas class="cat-canvas" id="cat-canvas-1"></canvas>
+            <video class="cat-video-source" id="cat-video-1" loop>
                 <source src="catyapa.mp4" type="video/mp4">
             </video>
-            <video class="cat-video" id="cat-video-2" loop>
+            <canvas class="cat-canvas" id="cat-canvas-2"></canvas>
+            <video class="cat-video-source" id="cat-video-2" loop>
                 <source src="catyapa.mp4" type="video/mp4">
             </video>
-            <video class="cat-video" id="cat-video-3" loop>
+            <canvas class="cat-canvas" id="cat-canvas-3"></canvas>
+            <video class="cat-video-source" id="cat-video-3" loop>
                 <source src="catyapa.mp4" type="video/mp4">
             </video>
-            <video class="cat-video" id="cat-video-4" loop>
+            <canvas class="cat-canvas" id="cat-canvas-4"></canvas>
+            <video class="cat-video-source" id="cat-video-4" loop>
                 <source src="catyapa.mp4" type="video/mp4">
             </video>
-            <video class="cat-video" id="cat-video-5" loop>
+            <canvas class="cat-canvas" id="cat-canvas-5"></canvas>
+            <video class="cat-video-source" id="cat-video-5" loop>
                 <source src="catyapa.mp4" type="video/mp4">
             </video>
         </div>
@@ -305,6 +319,80 @@
     </div>
 
     <script>
+        // Chroma key color (#00fb28)
+        const CHROMA_KEY_COLOR = { r: 0, g: 251, b: 40 };
+        const CHROMA_KEY_THRESHOLD = 50; // Adjust for better edge detection
+
+        function applyChromaKey(video, canvas) {
+            const ctx = canvas.getContext('2d');
+            const width = video.videoWidth || 300;
+            const height = video.videoHeight || 300;
+            
+            // Set canvas size
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Draw video frame to canvas
+            ctx.drawImage(video, 0, 0, width, height);
+            
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            
+            // Process each pixel
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Calculate distance from chroma key color
+                const dr = Math.abs(r - CHROMA_KEY_COLOR.r);
+                const dg = Math.abs(g - CHROMA_KEY_COLOR.g);
+                const db = Math.abs(b - CHROMA_KEY_COLOR.b);
+                const distance = Math.sqrt(dr * dr + dg * dg + db * db);
+                
+                // If pixel is close to chroma key color, make it transparent
+                if (distance < CHROMA_KEY_THRESHOLD) {
+                    data[i + 3] = 0; // Set alpha to 0 (transparent)
+                }
+            }
+            
+            // Put processed image data back
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function setupCatVideoChromaKey(videoId, canvasId) {
+            const video = document.getElementById(videoId);
+            const canvas = document.getElementById(canvasId);
+            
+            if (!video || !canvas) return;
+            
+            // Wait for video metadata
+            video.addEventListener('loadedmetadata', () => {
+                const width = video.videoWidth || 300;
+                const height = video.videoHeight || 300;
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Start processing frames
+                function processFrame() {
+                    if (!video.paused && !video.ended) {
+                        applyChromaKey(video, canvas);
+                        requestAnimationFrame(processFrame);
+                    }
+                }
+                
+                video.addEventListener('play', () => {
+                    processFrame();
+                });
+                
+                // Process first frame if already playing
+                if (!video.paused) {
+                    processFrame();
+                }
+            });
+        }
+
         const celebrationMessages = [
             "You stayed focused and completed your session! The cats are proud of you! 👓✨",
             "Incredible focus! You've earned this celebration! Your dedication is inspiring! 🎯🌟",
@@ -314,6 +402,15 @@
             "Fantastic session! You're building habits that will make you an amazing optometrist! 🌟👓",
             "Kudos to you! Your commitment to studying is truly admirable! The cats approve! 🎉👓"
         ];
+
+        // Setup chroma key on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            setupCatVideoChromaKey('cat-video-1', 'cat-canvas-1');
+            setupCatVideoChromaKey('cat-video-2', 'cat-canvas-2');
+            setupCatVideoChromaKey('cat-video-3', 'cat-canvas-3');
+            setupCatVideoChromaKey('cat-video-4', 'cat-canvas-4');
+            setupCatVideoChromaKey('cat-video-5', 'cat-canvas-5');
+        });
 
         function showCatCelebration() {
             const celebration = document.getElementById('cat-celebration');
@@ -331,6 +428,13 @@
             
             // Show celebration overlay
             celebration.classList.add('show');
+            
+            // Setup chroma key for each video
+            setupCatVideoChromaKey('cat-video-1', 'cat-canvas-1');
+            setupCatVideoChromaKey('cat-video-2', 'cat-canvas-2');
+            setupCatVideoChromaKey('cat-video-3', 'cat-canvas-3');
+            setupCatVideoChromaKey('cat-video-4', 'cat-canvas-4');
+            setupCatVideoChromaKey('cat-video-5', 'cat-canvas-5');
             
             // Play all videos with audio
             videos.forEach((video, index) => {
