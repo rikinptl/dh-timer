@@ -953,45 +953,53 @@ keyboard-hint kbd {
     overflow: hidden;
 }
 
-.cat-video {
+.cat-video-source {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cat-canvas {
     position: absolute;
     width: 300px;
     height: auto;
-    object-fit: contain;
     filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
-    animation: catFloat 3s ease-in-out infinite;
     opacity: 0.9;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
-#cat-video-1 {
+#cat-canvas-1 {
     top: 10%;
     left: 5%;
     animation-delay: 0s;
     transform: scale(0.8);
 }
 
-#cat-video-2 {
+#cat-canvas-2 {
     top: 15%;
     right: 10%;
     animation-delay: 0.5s;
     transform: scale(0.9) rotate(5deg);
 }
 
-#cat-video-3 {
+#cat-canvas-3 {
     bottom: 20%;
     left: 8%;
     animation-delay: 1s;
     transform: scale(0.85) rotate(-5deg);
 }
 
-#cat-video-4 {
+#cat-canvas-4 {
     bottom: 15%;
     right: 5%;
     animation-delay: 1.5s;
     transform: scale(0.9);
 }
 
-#cat-video-5 {
+#cat-canvas-5 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.7) rotate(10deg);
@@ -1014,23 +1022,23 @@ keyboard-hint kbd {
     }
 }
 
-#cat-video-1 {
+#cat-canvas-1 {
     animation: catFloat1 4s ease-in-out infinite;
 }
 
-#cat-video-2 {
+#cat-canvas-2 {
     animation: catFloat2 3.5s ease-in-out infinite;
 }
 
-#cat-video-3 {
+#cat-canvas-3 {
     animation: catFloat3 4.5s ease-in-out infinite;
 }
 
-#cat-video-4 {
+#cat-canvas-4 {
     animation: catFloat4 3.8s ease-in-out infinite;
 }
 
-#cat-video-5 {
+#cat-canvas-5 {
     animation: catFloat5 4.2s ease-in-out infinite;
 }
 
@@ -1119,35 +1127,35 @@ keyboard-hint kbd {
 
 /* Responsive adjustments for cat celebration */
 @media (max-width: 768px) {
-    .cat-video {
+    .cat-canvas {
         width: 200px;
     }
     
-    #cat-video-1 {
+    #cat-canvas-1 {
         top: 5%;
         left: 2%;
         transform: scale(0.6);
     }
     
-    #cat-video-2 {
+    #cat-canvas-2 {
         top: 10%;
         right: 2%;
         transform: scale(0.65);
     }
     
-    #cat-video-3 {
+    #cat-canvas-3 {
         bottom: 15%;
         left: 2%;
         transform: scale(0.6);
     }
     
-    #cat-video-4 {
+    #cat-canvas-4 {
         bottom: 10%;
         right: 2%;
         transform: scale(0.65);
     }
     
-    #cat-video-5 {
+    #cat-canvas-5 {
         transform: translate(-50%, -50%) scale(0.5);
     }
     

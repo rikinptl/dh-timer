@@ -85,6 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeParticles();
     updateStatistics();
     updateSoundIcon();
+    
+    // Pre-setup chroma key for cat videos (before they're shown)
+    setupCatVideoChromaKey('cat-video-1', 'cat-canvas-1');
+    setupCatVideoChromaKey('cat-video-2', 'cat-canvas-2');
+    setupCatVideoChromaKey('cat-video-3', 'cat-canvas-3');
+    setupCatVideoChromaKey('cat-video-4', 'cat-canvas-4');
+    setupCatVideoChromaKey('cat-video-5', 'cat-canvas-5');
 });
 
 // ==================== THEME MANAGEMENT ====================
@@ -846,6 +853,80 @@ function triggerConfetti() {
 }
 
 // ==================== CAT CELEBRATION ====================
+// Chroma key color (#00fb28)
+const CHROMA_KEY_COLOR = { r: 0, g: 251, b: 40 };
+const CHROMA_KEY_THRESHOLD = 50; // Adjust for better edge detection
+
+function applyChromaKey(video, canvas) {
+    const ctx = canvas.getContext('2d');
+    const width = video.videoWidth || 300;
+    const height = video.videoHeight || 300;
+    
+    // Set canvas size
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Draw video frame to canvas
+    ctx.drawImage(video, 0, 0, width, height);
+    
+    // Get image data
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    
+    // Process each pixel
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        
+        // Calculate distance from chroma key color
+        const dr = Math.abs(r - CHROMA_KEY_COLOR.r);
+        const dg = Math.abs(g - CHROMA_KEY_COLOR.g);
+        const db = Math.abs(b - CHROMA_KEY_COLOR.b);
+        const distance = Math.sqrt(dr * dr + dg * dg + db * db);
+        
+        // If pixel is close to chroma key color, make it transparent
+        if (distance < CHROMA_KEY_THRESHOLD) {
+            data[i + 3] = 0; // Set alpha to 0 (transparent)
+        }
+    }
+    
+    // Put processed image data back
+    ctx.putImageData(imageData, 0, 0);
+}
+
+function setupCatVideoChromaKey(videoId, canvasId) {
+    const video = document.getElementById(videoId);
+    const canvas = document.getElementById(canvasId);
+    
+    if (!video || !canvas) return;
+    
+    // Wait for video metadata
+    video.addEventListener('loadedmetadata', () => {
+        const width = video.videoWidth || 300;
+        const height = video.videoHeight || 300;
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Start processing frames
+        function processFrame() {
+            if (!video.paused && !video.ended) {
+                applyChromaKey(video, canvas);
+                requestAnimationFrame(processFrame);
+            }
+        }
+        
+        video.addEventListener('play', () => {
+            processFrame();
+        });
+        
+        // Process first frame if already playing
+        if (!video.paused) {
+            processFrame();
+        }
+    });
+}
+
 function showCatCelebration() {
     const celebration = document.getElementById('cat-celebration');
     const videos = [
@@ -863,10 +944,19 @@ function showCatCelebration() {
     // Show celebration overlay
     celebration.classList.add('show');
     
+    // Setup chroma key for each video
+    setupCatVideoChromaKey('cat-video-1', 'cat-canvas-1');
+    setupCatVideoChromaKey('cat-video-2', 'cat-canvas-2');
+    setupCatVideoChromaKey('cat-video-3', 'cat-canvas-3');
+    setupCatVideoChromaKey('cat-video-4', 'cat-canvas-4');
+    setupCatVideoChromaKey('cat-video-5', 'cat-canvas-5');
+    
     // Play all videos with audio
     videos.forEach((video, index) => {
         video.currentTime = 0; // Reset to start
         video.muted = false; // Unmute to play audio
+        video.volume = 0.6; // Set volume
+        
         video.play().catch(e => {
             console.log('Video autoplay prevented, user interaction required');
             // If autoplay fails, we'll handle it when user clicks
