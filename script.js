@@ -115,7 +115,7 @@ let focusTimer = {
     interval: null,
     isRunning: false,
     circle: null,
-    circumference: 2 * Math.PI * 70
+    circumference: 2 * Math.PI * 60
 };
 
 let breakTimer = {
@@ -124,7 +124,7 @@ let breakTimer = {
     interval: null,
     isRunning: false,
     circle: null,
-    circumference: 2 * Math.PI * 70
+    circumference: 2 * Math.PI * 60
 };
 
 // ==================== STATISTICS ====================
