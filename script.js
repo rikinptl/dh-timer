@@ -30,6 +30,16 @@ const todoMessages = [
     { icon: "📚", title: "Keep Going!", message: "You're building great study habits! Keep it up!" }
 ];
 
+const celebrationMessages = [
+    "You stayed focused and completed your session! The cats are proud of you! 👓✨",
+    "Incredible focus! You've earned this celebration! Your dedication is inspiring! 🎯🌟",
+    "Outstanding work! You maintained your concentration like a true optometry student! 👓💪",
+    "Amazing discipline! The cats are celebrating your achievement with you! 🎉✨",
+    "You did it! Your focus was 20/20! Keep up this incredible momentum! 👓🔥",
+    "Fantastic session! You're building habits that will make you an amazing optometrist! 🌟👓",
+    "Kudos to you! Your commitment to studying is truly admirable! The cats approve! 🎉👓"
+];
+
 // ==================== TIMER STATE ====================
 let focusTimer = {
     totalSeconds: 25 * 60,
@@ -297,9 +307,15 @@ function completeFocusSession() {
     saveStatistics();
     updateStatistics();
     
-    // Show celebration
-    const message = focusMessages[Math.floor(Math.random() * focusMessages.length)];
-    showPopup(message.icon, message.title, message.message);
+    // Show cat celebration
+    showCatCelebration();
+    
+    // Also show regular popup after a delay
+    setTimeout(() => {
+        const message = focusMessages[Math.floor(Math.random() * focusMessages.length)];
+        showPopup(message.icon, message.title, message.message);
+    }, 2000);
+    
     showToast("🎉 Focus session complete! Time for a break!");
     triggerConfetti();
     
@@ -610,6 +626,16 @@ function setupControls() {
     document.getElementById('close-shortcuts').addEventListener('click', () => {
         document.getElementById('shortcuts-modal').classList.remove('show');
     });
+    
+    // Cat celebration close
+    document.getElementById('close-celebration').addEventListener('click', closeCatCelebration);
+    
+    // Allow clicking outside celebration to close (optional)
+    document.getElementById('cat-celebration').addEventListener('click', (e) => {
+        if (e.target.id === 'cat-celebration') {
+            closeCatCelebration();
+        }
+    });
 }
 
 // ==================== KEYBOARD SHORTCUTS ====================
@@ -817,4 +843,66 @@ function triggerConfetti() {
     }
     
     animate();
+}
+
+// ==================== CAT CELEBRATION ====================
+function showCatCelebration() {
+    const celebration = document.getElementById('cat-celebration');
+    const videos = [
+        document.getElementById('cat-video-1'),
+        document.getElementById('cat-video-2'),
+        document.getElementById('cat-video-3'),
+        document.getElementById('cat-video-4'),
+        document.getElementById('cat-video-5')
+    ];
+    
+    // Select random celebration message
+    const message = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+    document.getElementById('celebration-message-text').textContent = message;
+    
+    // Show celebration overlay
+    celebration.classList.add('show');
+    
+    // Play all videos with audio
+    videos.forEach((video, index) => {
+        video.currentTime = 0; // Reset to start
+        video.muted = false; // Unmute to play audio
+        video.play().catch(e => {
+            console.log('Video autoplay prevented, user interaction required');
+            // If autoplay fails, we'll handle it when user clicks
+        });
+        
+        // Stagger the start times slightly for more natural effect
+        setTimeout(() => {
+            if (video.paused) {
+                video.play().catch(e => console.log('Video play error:', e));
+            }
+        }, index * 200);
+    });
+    
+    // Ensure at least one video plays audio (browser autoplay restrictions)
+    if (videos.length > 0) {
+        videos[0].muted = false;
+        videos[0].volume = 0.7; // Set volume
+    }
+}
+
+function closeCatCelebration() {
+    const celebration = document.getElementById('cat-celebration');
+    const videos = [
+        document.getElementById('cat-video-1'),
+        document.getElementById('cat-video-2'),
+        document.getElementById('cat-video-3'),
+        document.getElementById('cat-video-4'),
+        document.getElementById('cat-video-5')
+    ];
+    
+    // Pause all videos
+    videos.forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+        video.muted = true; // Mute when closing
+    });
+    
+    celebration.classList.remove('show');
 }

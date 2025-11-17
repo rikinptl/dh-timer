@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cat Celebration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .test-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            color: #6366f1;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Cat Celebration Styles (copied from main CSS) */
+        .cat-celebration {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(139, 92, 246, 0.95));
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .cat-celebration.show {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .cat-videos-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .cat-video {
+            position: absolute;
+            width: 300px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+            opacity: 0.9;
+        }
+
+        #cat-video-1 {
+            top: 10%;
+            left: 5%;
+            animation: catFloat1 4s ease-in-out infinite;
+        }
+
+        #cat-video-2 {
+            top: 15%;
+            right: 10%;
+            animation: catFloat2 3.5s ease-in-out infinite;
+        }
+
+        #cat-video-3 {
+            bottom: 20%;
+            left: 8%;
+            animation: catFloat3 4.5s ease-in-out infinite;
+        }
+
+        #cat-video-4 {
+            bottom: 15%;
+            right: 5%;
+            animation: catFloat4 3.8s ease-in-out infinite;
+        }
+
+        #cat-video-5 {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: catFloat5 4.2s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes catFloat1 {
+            0%, 100% { transform: translateY(0) translateX(0) scale(0.8) rotate(0deg); }
+            50% { transform: translateY(-30px) translateX(10px) scale(0.85) rotate(5deg); }
+        }
+
+        @keyframes catFloat2 {
+            0%, 100% { transform: translateY(0) translateX(0) scale(0.9) rotate(5deg); }
+            50% { transform: translateY(-25px) translateX(-15px) scale(0.95) rotate(-3deg); }
+        }
+
+        @keyframes catFloat3 {
+            0%, 100% { transform: translateY(0) translateX(0) scale(0.85) rotate(-5deg); }
+            50% { transform: translateY(-35px) translateX(20px) scale(0.9) rotate(3deg); }
+        }
+
+        @keyframes catFloat4 {
+            0%, 100% { transform: translateY(0) translateX(0) scale(0.9) rotate(0deg); }
+            50% { transform: translateY(-28px) translateX(-10px) scale(0.95) rotate(-4deg); }
+        }
+
+        @keyframes catFloat5 {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0) scale(0.7) rotate(10deg); }
+            50% { transform: translate(-50%, -50%) translateY(-20px) scale(0.75) rotate(15deg); }
+        }
+
+        .celebration-message {
+            position: relative;
+            z-index: 10001;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            max-width: 600px;
+            margin: 20px;
+            animation: messagePopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes messagePopIn {
+            0% {
+                transform: scale(0.3) rotate(-10deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1) rotate(2deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .celebration-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #6366f1;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .celebration-text {
+            font-size: 1.3rem;
+            color: #1f2937;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .celebration-btn {
+            font-size: 1.1rem;
+            padding: 14px 32px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .cat-video {
+                width: 200px;
+            }
+            
+            #cat-video-1 {
+                top: 5%;
+                left: 2%;
+                transform: scale(0.6);
+            }
+            
+            #cat-video-2 {
+                top: 10%;
+                right: 2%;
+                transform: scale(0.65);
+            }
+            
+            #cat-video-3 {
+                bottom: 15%;
+                left: 2%;
+                transform: scale(0.6);
+            }
+            
+            #cat-video-4 {
+                bottom: 10%;
+                right: 2%;
+                transform: scale(0.65);
+            }
+            
+            #cat-video-5 {
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            
+            .celebration-message {
+                padding: 30px 25px;
+                max-width: 90%;
+            }
+            
+            .celebration-title {
+                font-size: 2rem;
+            }
+            
+            .celebration-text {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🐱 Cat Celebration Test</h1>
+        <p>Click the button below to see the cat celebration overlay with 5 cats playing across the screen!</p>
+        <button class="btn" onclick="showCatCelebration()">Show Cat Celebration! 🎉</button>
+    </div>
+
+    <!-- Cat Celebration Overlay -->
+    <div id="cat-celebration" class="cat-celebration">
+        <div class="cat-videos-container">
+            <video class="cat-video" id="cat-video-1" loop>
+                <source src="catyapa.mp4" type="video/mp4">
+            </video>
+            <video class="cat-video" id="cat-video-2" loop>
+                <source src="catyapa.mp4" type="video/mp4">
+            </video>
+            <video class="cat-video" id="cat-video-3" loop>
+                <source src="catyapa.mp4" type="video/mp4">
+            </video>
+            <video class="cat-video" id="cat-video-4" loop>
+                <source src="catyapa.mp4" type="video/mp4">
+            </video>
+            <video class="cat-video" id="cat-video-5" loop>
+                <source src="catyapa.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="celebration-message">
+            <h2 class="celebration-title">🎉 Amazing Focus! 🎉</h2>
+            <p class="celebration-text" id="celebration-message-text">You stayed focused and completed your session! The cats are proud of you! 👓✨</p>
+            <button class="btn celebration-btn" onclick="closeCatCelebration()">Continue Studying!</button>
+        </div>
+    </div>
+
+    <script>
+        const celebrationMessages = [
+            "You stayed focused and completed your session! The cats are proud of you! 👓✨",
+            "Incredible focus! You've earned this celebration! Your dedication is inspiring! 🎯🌟",
+            "Outstanding work! You maintained your concentration like a true optometry student! 👓💪",
+            "Amazing discipline! The cats are celebrating your achievement with you! 🎉✨",
+            "You did it! Your focus was 20/20! Keep up this incredible momentum! 👓🔥",
+            "Fantastic session! You're building habits that will make you an amazing optometrist! 🌟👓",
+            "Kudos to you! Your commitment to studying is truly admirable! The cats approve! 🎉👓"
+        ];
+
+        function showCatCelebration() {
+            const celebration = document.getElementById('cat-celebration');
+            const videos = [
+                document.getElementById('cat-video-1'),
+                document.getElementById('cat-video-2'),
+                document.getElementById('cat-video-3'),
+                document.getElementById('cat-video-4'),
+                document.getElementById('cat-video-5')
+            ];
+            
+            // Select random celebration message
+            const message = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+            document.getElementById('celebration-message-text').textContent = message;
+            
+            // Show celebration overlay
+            celebration.classList.add('show');
+            
+            // Play all videos with audio
+            videos.forEach((video, index) => {
+                video.currentTime = 0; // Reset to start
+                video.muted = false; // Unmute to play audio
+                video.volume = 0.6; // Set volume (lower to avoid too loud)
+                
+                // Try to play, handle autoplay restrictions
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Video autoplay prevented:', error);
+                        // If autoplay fails, user will need to interact
+                        video.muted = false;
+                    });
+                }
+                
+                // Stagger the start times slightly for more natural effect
+                setTimeout(() => {
+                    if (video.paused) {
+                        video.play().catch(e => console.log('Video play error:', e));
+                    }
+                }, index * 200);
+            });
+        }
+
+        function closeCatCelebration() {
+            const celebration = document.getElementById('cat-celebration');
+            const videos = [
+                document.getElementById('cat-video-1'),
+                document.getElementById('cat-video-2'),
+                document.getElementById('cat-video-3'),
+                document.getElementById('cat-video-4'),
+                document.getElementById('cat-video-5')
+            ];
+            
+            // Pause all videos
+            videos.forEach(video => {
+                video.pause();
+                video.currentTime = 0;
+                video.muted = true; // Mute when closing
+            });
+            
+            celebration.classList.remove('show');
+        }
+
+        // Allow clicking outside celebration to close
+        document.getElementById('cat-celebration').addEventListener('click', (e) => {
+            if (e.target.id === 'cat-celebration') {
+                closeCatCelebration();
+            }
+        });
+    </script>
+</body>
+</html>
+
