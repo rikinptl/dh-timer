@@ -1001,11 +1001,12 @@ function setupKeyboardShortcuts() {
                 e.preventDefault();
                 if (document.body.classList.contains('focus-mode')) {
                     exitFocusMode();
+                } else {
+                    document.getElementById('popup-modal').classList.remove('show');
+                    document.getElementById('shortcuts-modal').classList.remove('show');
+                    document.getElementById('stats-panel').classList.remove('show');
+                    document.getElementById('settings-panel').classList.remove('show');
                 }
-                break;
-                document.getElementById('popup-modal').classList.remove('show');
-                document.getElementById('shortcuts-modal').classList.remove('show');
-                document.getElementById('stats-panel').classList.remove('show');
                 break;
         }
     });
