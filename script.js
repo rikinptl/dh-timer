@@ -1009,11 +1009,18 @@ function showCatCelebration() {
         const canvasId = `cat-canvas-${index + 1}`;
         setupCatVideoChromaKey(video.id, canvasId);
         
-        // Ensure video loads
+        // Ensure video loads and loops continuously
         video.load();
+        video.loop = true; // Ensure looping is enabled
         
         // Only first video plays audio, others are muted
         const shouldPlayAudio = index === 0;
+        
+        // Ensure video keeps looping when it ends
+        video.addEventListener('ended', () => {
+            video.currentTime = 0;
+            video.play().catch(e => console.log('Video replay error:', e));
+        });
         
         // Wait for video to be ready
         const playVideo = () => {
