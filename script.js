@@ -944,7 +944,8 @@ function setupCatVideoChromaKey(videoId, canvasId) {
         
         // Start processing frames
         function processFrame() {
-            if (!video.paused && !video.ended && video.readyState >= 2) {
+            // Continue processing as long as video is not paused (loop handles ended state)
+            if (!video.paused && video.readyState >= 2) {
                 try {
                     applyChromaKey(video, canvas);
                     isProcessing = true;
@@ -958,8 +959,11 @@ function setupCatVideoChromaKey(videoId, canvasId) {
                         requestAnimationFrame(processFrame);
                     }
                 }
-            } else {
+            } else if (video.paused) {
                 isProcessing = false;
+            } else {
+                // Video might be loading, keep trying
+                requestAnimationFrame(processFrame);
             }
         }
         
@@ -1004,6 +1008,9 @@ function showCatCelebration() {
     // Show celebration overlay
     celebration.classList.add('show');
     
+    // Store celebration reference for event listeners
+    window.currentCelebration = celebration;
+    
     // Setup chroma key for each video BEFORE playing
     videos.forEach((video, index) => {
         const canvasId = `cat-canvas-${index + 1}`;
@@ -1016,10 +1023,37 @@ function showCatCelebration() {
         // Only first video plays audio, others are muted
         const shouldPlayAudio = index === 0;
         
-        // Ensure video keeps looping when it ends
+        // Ensure video keeps looping when it ends (backup in case loop attribute fails)
         video.addEventListener('ended', () => {
-            video.currentTime = 0;
-            video.play().catch(e => console.log('Video replay error:', e));
+            const celebration = window.currentCelebration || document.getElementById('cat-celebration');
+            if (celebration && celebration.classList.contains('show')) {
+                // Only restart if celebration is still showing
+                video.currentTime = 0;
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        console.log('Video replay error:', e);
+                        // Try again after a short delay
+                        setTimeout(() => {
+                            video.play().catch(err => console.log('Retry replay error:', err));
+                        }, 100);
+                    });
+                }
+            }
+        });
+        
+        // Also listen for timeupdate to ensure it keeps playing near the end
+        video.addEventListener('timeupdate', () => {
+            const celebration = window.currentCelebration || document.getElementById('cat-celebration');
+            // If video is near the end and celebration is still showing, ensure it loops
+            if (celebration && celebration.classList.contains('show') && 
+                video.duration > 0 && 
+                video.currentTime >= video.duration - 0.5) {
+                // Video is near end, ensure loop continues
+                if (video.paused) {
+                    video.play().catch(e => console.log('Auto-resume error:', e));
+                }
+            }
         });
         
         // Wait for video to be ready
