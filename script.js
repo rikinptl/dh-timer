@@ -1012,29 +1012,42 @@ function showCatCelebration() {
         // Ensure video loads
         video.load();
         
+        // Only first video plays audio, others are muted
+        const shouldPlayAudio = index === 0;
+        
         // Wait for video to be ready
         const playVideo = () => {
             if (video.readyState >= 2) { // HAVE_CURRENT_DATA or better
                 video.currentTime = 0;
-                video.muted = false;
-                video.volume = index === 0 ? 0.7 : 0.5; // First video louder
+                
+                if (shouldPlayAudio) {
+                    // First video: play with audio
+                    video.muted = false;
+                    video.volume = 0.7;
+                } else {
+                    // Other videos: muted
+                    video.muted = true;
+                    video.volume = 0;
+                }
                 
                 const playPromise = video.play();
                 if (playPromise !== undefined) {
                     playPromise
                         .then(() => {
-                            console.log(`Video ${index + 1} playing`);
+                            console.log(`Video ${index + 1} playing ${shouldPlayAudio ? 'with audio' : 'muted'}`);
                         })
                         .catch(error => {
                             console.log(`Video ${index + 1} autoplay prevented:`, error);
-                            // Try with muted first, then unmute after user interaction
+                            // Try with muted first for all videos (browser requirement)
                             video.muted = true;
                             video.play()
                                 .then(() => {
-                                    // Unmute after a short delay
-                                    setTimeout(() => {
-                                        video.muted = false;
-                                    }, 500);
+                                    if (shouldPlayAudio) {
+                                        // Unmute only the first video after a short delay
+                                        setTimeout(() => {
+                                            video.muted = false;
+                                        }, 500);
+                                    }
                                 })
                                 .catch(e => console.log('Video play error:', e));
                         });
