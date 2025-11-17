@@ -497,6 +497,55 @@ body.focus-mode .focus-timer .custom-timer-container {
     display: none;
 }
 
+/* Exit Focus Mode Button */
+.exit-focus-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.exit-focus-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateX(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.exit-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.exit-focus-btn:hover .exit-icon {
+    transform: translateX(-3px);
+}
+
+.exit-text {
+    white-space: nowrap;
+}
+
+body.focus-mode .exit-focus-btn {
+    display: flex;
+}
+
 .timer-section, .todo-section {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 20px;

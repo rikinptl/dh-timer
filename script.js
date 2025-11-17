@@ -157,6 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStatistics();
     updateSoundIcon();
     
+    // Setup exit focus mode button
+    const exitFocusBtn = document.getElementById('exit-focus-mode');
+    if (exitFocusBtn) {
+        exitFocusBtn.addEventListener('click', () => {
+            exitFocusMode();
+        });
+    }
+    
     // Pre-setup chroma key for cat videos (before they're shown)
     setupCatVideoChromaKey('cat-video-1', 'cat-canvas-1');
     setupCatVideoChromaKey('cat-video-2', 'cat-canvas-2');
@@ -556,6 +564,14 @@ function exitFocusMode() {
         focusTimer.circumference = 2 * Math.PI * 60;
         focusTimer.circle.style.strokeDasharray = focusTimer.circumference;
         updateFocusProgress();
+    }
+}
+
+function toggleFocusMode() {
+    if (document.body.classList.contains('focus-mode')) {
+        exitFocusMode();
+    } else if (focusTimer.isRunning) {
+        enterFocusMode();
     }
 }
 
@@ -982,6 +998,11 @@ function setupKeyboardShortcuts() {
                 document.getElementById('shortcuts-modal').classList.toggle('show');
                 break;
             case 'Escape':
+                e.preventDefault();
+                if (document.body.classList.contains('focus-mode')) {
+                    exitFocusMode();
+                }
+                break;
                 document.getElementById('popup-modal').classList.remove('show');
                 document.getElementById('shortcuts-modal').classList.remove('show');
                 document.getElementById('stats-panel').classList.remove('show');
