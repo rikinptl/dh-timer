@@ -201,8 +201,80 @@ function toggleTheme() {
 
 // ==================== BACKGROUND MANAGEMENT ====================
 function initializeBackground() {
+    // Load uploaded custom background from localStorage
+    const customBg = localStorage.getItem('dhruvi-custom-background');
+    if (customBg) {
+        addCustomBackground(customBg);
+    }
+    
     applyBackground(CONFIG.background);
     renderBackgroundOptions();
+    setupBackgroundUpload();
+}
+
+function addCustomBackground(imageDataUrl) {
+    // Check if custom background already exists
+    const existingCustom = BACKGROUND_OPTIONS.find(bg => bg.id === 'custom-upload');
+    if (existingCustom) {
+        existingCustom.value = imageDataUrl;
+        existingCustom.preview = imageDataUrl;
+    } else {
+        BACKGROUND_OPTIONS.push({
+            id: 'custom-upload',
+            name: 'My Upload',
+            type: 'image',
+            value: imageDataUrl,
+            preview: imageDataUrl
+        });
+    }
+}
+
+function setupBackgroundUpload() {
+    const uploadInput = document.getElementById('background-upload');
+    if (!uploadInput) return;
+    
+    uploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showToast('❌ Please upload an image file (JPG, PNG, etc.)');
+            return;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('❌ Image size should be less than 5MB');
+            return;
+        }
+        
+        // Read file as data URL
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const imageDataUrl = event.target.result;
+            
+            // Store in localStorage
+            localStorage.setItem('dhruvi-custom-background', imageDataUrl);
+            
+            // Add to background options
+            addCustomBackground(imageDataUrl);
+            
+            // Apply the uploaded background
+            applyBackground('custom-upload');
+            
+            // Re-render options to show the new background
+            renderBackgroundOptions();
+            
+            showToast('✅ Custom background uploaded successfully!');
+        };
+        
+        reader.onerror = () => {
+            showToast('❌ Error reading image file');
+        };
+        
+        reader.readAsDataURL(file);
+    });
 }
 
 function applyBackground(backgroundId) {

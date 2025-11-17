@@ -50,6 +50,17 @@
                 <div class="settings-section">
                     <h3>🎨 Background Theme</h3>
                     <p class="settings-description">Choose your favorite background to personalize your study space</p>
+                    
+                    <!-- Upload Custom Background -->
+                    <div class="upload-section">
+                        <label for="background-upload" class="upload-label">
+                            <span class="upload-icon">📤</span>
+                            <span class="upload-text">Upload Custom Background</span>
+                        </label>
+                        <input type="file" id="background-upload" accept="image/*" style="display: none;">
+                        <p class="upload-hint">Upload your own image (JPG, PNG, etc.)</p>
+                    </div>
+                    
                     <div class="background-grid" id="background-grid">
                         <!-- Backgrounds will be added via JavaScript -->
                     </div>
