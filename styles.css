@@ -116,13 +116,14 @@ header {
 }
 
 .icon-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 12px;
     padding: 10px 14px;
     cursor: pointer;
     transition: var(--transition);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     font-size: 1.2rem;
     color: var(--text-white);
     display: flex;
@@ -131,7 +132,8 @@ header {
 }
 
 .icon-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.35);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -616,8 +618,8 @@ keyboard-hint kbd {
 
 .preset-btn {
     padding: 6px 12px;
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
     color: var(--primary-color);
     border-radius: 8px;
     font-size: 0.85rem;
@@ -653,8 +655,9 @@ keyboard-hint kbd {
 }
 
 .preset-btn.active {
-    background: rgba(99, 102, 241, 0.7);
+    background: rgba(99, 102, 241, 0.5);
     color: white;
+    border-color: rgba(99, 102, 241, 0.6);
     border-color: var(--primary-color);
     backdrop-filter: blur(20px);
 }
